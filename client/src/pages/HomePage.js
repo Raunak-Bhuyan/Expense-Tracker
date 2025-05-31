@@ -32,6 +32,8 @@ const HomePage = () => {
   const [viewData, setViewData] = useState('table');
   const [editable, setEditable] = useState(null);
 
+  const baseURL = 'https://expense-tracker-1i4h.onrender.com';
+
   const columns = [
     {
       title: 'Date',
@@ -58,18 +60,11 @@ const HomePage = () => {
       title: 'Actions',
       render: (text, record) => (
         <div>
-          <EditOutlined
-            onClick={() => {
-              setEditable(record);
-              setShowModal(true);
-            }}
-          />
-          <DeleteOutlined
-            className="mx-2"
-            onClick={() => {
-              handleDelete(record);
-            }}
-          />
+          <EditOutlined onClick={() => {
+            setEditable(record);
+            setShowModal(true);
+          }} />
+          <DeleteOutlined className="mx-2" onClick={() => handleDelete(record)} />
         </div>
       ),
     },
@@ -82,7 +77,7 @@ const HomePage = () => {
         if (!user) return message.error('User not found');
 
         setLoading(true);
-        const res = await axios.post('/transactions/get-transactions', {
+        const res = await axios.post(`${baseURL}/transactions/get-transactions`, {
           userid: user._id,
           frequency,
           selectedDate:
@@ -107,7 +102,7 @@ const HomePage = () => {
   const handleDelete = async (record) => {
     try {
       setLoading(true);
-      await axios.post('/transactions/delete-transaction', {
+      await axios.post(`${baseURL}/transactions/delete-transaction`, {
         transactionId: record._id,
       });
       setLoading(false);
@@ -126,16 +121,13 @@ const HomePage = () => {
 
       setLoading(true);
       if (editable) {
-        await axios.post('/transactions/edit-transaction', {
-          payload: {
-            ...values,
-            userId: user._id,
-          },
+        await axios.post(`${baseURL}/transactions/edit-transaction`, {
+          payload: { ...values, userId: user._id },
           transactionId: editable._id,
         });
         message.success('Transaction updated successfully');
       } else {
-        await axios.post('/transactions/add-transaction', {
+        await axios.post(`${baseURL}/transactions/add-transaction`, {
           ...values,
           userid: user._id,
         });
@@ -153,15 +145,12 @@ const HomePage = () => {
   return (
     <Layout>
       {loading && <Spinner />}
-      
+
+      {/* Filters */}
       <div className="filters d-flex align-items-end flex-wrap gap-3 my-3">
         <div>
           <h6>Select Frequency</h6>
-          <Select
-            value={frequency}
-            onChange={(val) => setFrequency(val)}
-            style={{ minWidth: 150 }}
-          >
+          <Select value={frequency} onChange={(val) => setFrequency(val)} style={{ minWidth: 150 }}>
             <Select.Option value="7">Last one week</Select.Option>
             <Select.Option value="30">Last one month</Select.Option>
             <Select.Option value="365">Last one year</Select.Option>
@@ -178,39 +167,33 @@ const HomePage = () => {
 
         <div>
           <h6>Select Type</h6>
-          <Select
-            value={type}
-            onChange={(val) => setType(val)}
-            style={{ minWidth: 150 }}
-          >
+          <Select value={type} onChange={(val) => setType(val)} style={{ minWidth: 150 }}>
             <Select.Option value="all">All</Select.Option>
             <Select.Option value="income">Income</Select.Option>
             <Select.Option value="expense">Expense</Select.Option>
           </Select>
         </div>
 
-          <div>
-            <h6>View Mode</h6>
-            <div className="d-flex align-items-center border rounded p-1">
-              <UnorderedListOutlined
-                className={`mx-2 fs-5 ${viewData === 'table' ? 'active-icon' : 'inactive-icon'}`}
-                onClick={() => setViewData('table')}
-              />
-              <AreaChartOutlined
-                className={`mx-2 fs-5 ${viewData === 'analytics' ? 'active-icon' : 'inactive-icon'}`}
-                onClick={() => setViewData('analytics')}
-              />
-            </div>
+        <div>
+          <h6>View Mode</h6>
+          <div className="d-flex align-items-center border rounded p-1">
+            <UnorderedListOutlined
+              className={`mx-2 fs-5 ${viewData === 'table' ? 'active-icon' : 'inactive-icon'}`}
+              onClick={() => setViewData('table')}
+            />
+            <AreaChartOutlined
+              className={`mx-2 fs-5 ${viewData === 'analytics' ? 'active-icon' : 'inactive-icon'}`}
+              onClick={() => setViewData('analytics')}
+            />
           </div>
-
+        </div>
 
         <div className="ms-auto">
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            Add new
-          </button>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>Add new</button>
         </div>
       </div>
 
+      {/* Table or Analytics */}
       <div className="content">
         {viewData === 'table' ? (
           <Table columns={columns} dataSource={allTransaction} rowKey="_id" />
@@ -219,6 +202,7 @@ const HomePage = () => {
         )}
       </div>
 
+      {/* Modal */}
       <Modal
         title={editable ? 'Edit Transaction' : 'Add Transaction'}
         open={showModal}
@@ -226,9 +210,7 @@ const HomePage = () => {
         footer={false}
       >
         <Form layout="vertical" onFinish={handleSubmit} initialValues={editable}>
-          <Form.Item label="Amount" name="amount">
-            <Input type="text" />
-          </Form.Item>
+          <Form.Item label="Amount" name="amount"><Input type="text" /></Form.Item>
           <Form.Item label="Type" name="type">
             <Select>
               <Select.Option value="income">Income</Select.Option>
@@ -248,19 +230,11 @@ const HomePage = () => {
               <Select.Option value="tax">Tax</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label="Date" name="date">
-            <Input type="date" />
-          </Form.Item>
-          <Form.Item label="Reference" name="reference">
-            <Input type="text" />
-          </Form.Item>
-          <Form.Item label="Description" name="description">
-            <Input type="text" />
-          </Form.Item>
+          <Form.Item label="Date" name="date"><Input type="date" /></Form.Item>
+          <Form.Item label="Reference" name="reference"><Input type="text" /></Form.Item>
+          <Form.Item label="Description" name="description"><Input type="text" /></Form.Item>
           <div className="d-flex justify-content-end">
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
+            <button type="submit" className="btn btn-primary">Save</button>
           </div>
         </Form>
       </Modal>
