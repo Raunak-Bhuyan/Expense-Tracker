@@ -29,3 +29,7 @@ const PORT = 8080 || process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 })
+
+app.get('/', (req, res) => {
+  res.send('Expense Tracker API is running ✅');
+});

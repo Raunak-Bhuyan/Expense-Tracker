@@ -32,7 +32,7 @@ const HomePage = () => {
   const [viewData, setViewData] = useState('table');
   const [editable, setEditable] = useState(null);
 
-  const baseURL = 'https://expense-tracker-1i4h.onrender.com';
+  const baseURL = 'https://expense-tracker-1i4h.onrender.com/api/v1';
 
   const columns = [
     {
