@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const getAllTransactions = async (req, res) => {
   try {
-    const { frequency, selectedDate, userid, type } = req.body;
+    const { frequency, selectedDate, userid, type } = req.query;
 
     let filter = { userid };
 
@@ -11,7 +11,7 @@ const getAllTransactions = async (req, res) => {
       filter.date = {
         $gt: moment().subtract(Number(frequency), 'd').toDate(),
       };
-    } else if (selectedDate.length === 2) {
+    } else if (selectedDate?.length === 2) {
       filter.date = {
         $gte: new Date(selectedDate[0]),
         $lte: new Date(selectedDate[1]),
@@ -30,27 +30,27 @@ const getAllTransactions = async (req, res) => {
   }
 };
 
-const deleteTransaction = async (req,res) => {
-  try{
-    await transactionModel.findOneAndDelete({_id:req.body.transactionId})
-    res.status(200).send('deleted successfully');
-  }catch(error){
-    console.log(error)
-    res.status(500).json(error)
+const deleteTransaction = async (req, res) => {
+  try {
+    await transactionModel.findByIdAndDelete(req.params.id);
+    res.status(200).send('Deleted successfully');
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
   }
 };
 
-const editTransaction = async (req,res) => {
-  try{
-    await transactionModel.findOneAndUpdate({_id:req.body.transactionId}, 
-      req.body.payload
-    );
+
+const editTransaction = async (req, res) => {
+  try {
+    await transactionModel.findByIdAndUpdate(req.params.id, req.body);
     res.status(200).send('Edited successfully');
-  }catch(error){
-    console.log(error)
-    res.status(500).json(error)
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
   }
 };
+
 
 const addTransaction = async (req, res) => {
   try {

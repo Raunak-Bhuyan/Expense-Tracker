@@ -9,12 +9,12 @@ const router = express.Router()
 router.post('/add-transaction', addTransaction)
 
 //edit transaction
-router.post('/edit-transaction', editTransaction)
+router.put('/edit-transaction', editTransaction)
 
 //delete transaction
-router.post('/delete-transaction', deleteTransaction)
+router.delete('/delete-transaction', deleteTransaction)
 
 //get transactions
-router.post('/get-transactions', getAllTransactions)
+router.get('/get-transactions', getAllTransactions)
 
-module.exports = router
+module.exports = router;
